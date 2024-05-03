@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, send_file, request, jsonify
 import pandas as pd
 
 app = Flask(__name__)
@@ -9,14 +9,14 @@ doctor_data = pd.read_csv('C:\\Users\\DIVYA\\Desktop\\Medisphere\\doctor\\doctor
 def recommend_doctor(patient_location, patient_specialty):
     try:
         # Filter doctors by the patient's location and specialty
-        hospitals_with_criteria = doctor_data[(doctor_data['Location'].str.contains(patient_location, case=False)) &
+        doctors_with_criteria = doctor_data[(doctor_data['Location'].str.contains(patient_location, case=False)) &
                                               (doctor_data['Specialties'].str.contains(patient_specialty, case=False))]
 
-        if hospitals_with_criteria.empty:
+        if doctors_with_criteria.empty:
             return {"error": "Sorry, there are no doctors in {} specializing in {}.".format(patient_location, patient_specialty)}
 
         # Sort doctors by quality measures or any other relevant criteria
-        recommended_doctor = hospitals_with_criteria.iloc[0]  # For simplicity, just recommend the first hospital
+        recommended_doctor = doctors_with_criteria.iloc[0]  # For simplicity, just recommend the first doctor
 
         return {"Doctor": recommended_doctor['Doctor Name'], "Location": recommended_doctor['Location']}
     except Exception as e:
@@ -24,7 +24,7 @@ def recommend_doctor(patient_location, patient_specialty):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return send_file('index.html')
 
 @app.route('/recommendation', methods=['GET'])
 def get_recommendation():
